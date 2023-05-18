@@ -36,13 +36,12 @@ class ProductScreen extends GetView<DashboardScreenController> {
                   });
                 },
                 decoration: InputDecoration(
-                    fillColor: Colors.amber[100],
+                    hintText: "Search",
+                    fillColor: Color(0xFFF0EEEE),
                     filled: true,
                     contentPadding: EdgeInsets.only(left: .5.w),
                     alignLabelWithHint: false,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    hintText: 'Search'),
+                    border: InputBorder.none),
               ),
             ),
             Expanded(

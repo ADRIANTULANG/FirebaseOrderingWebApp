@@ -14,7 +14,9 @@ import '../widget/AddProductscreen_alertdialog.dart';
 
 class DashboardScreenController extends GetxController {
   RxList<OrderModel> orderList = <OrderModel>[].obs;
+  RxList<OrderModel> orderList_masterlist = <OrderModel>[].obs;
   RxList<OrderModel> orderList_History = <OrderModel>[].obs;
+  RxList<OrderModel> orderList_History_masterList = <OrderModel>[].obs;
 
   RxList<OrderList> items = <OrderList>[].obs;
 
@@ -41,9 +43,17 @@ class DashboardScreenController extends GetxController {
 
   TextEditingController searchproducts = TextEditingController();
 
-  RxInt pending_count = 0.obs;
-  RxInt success_count = 0.obs;
-  RxInt cancelled_count = 0.obs;
+  RxDouble pending_count = 0.0.obs;
+  RxDouble accepted_count = 0.0.obs;
+  RxDouble preparing_count = 0.0.obs;
+  RxDouble checkout_count = 0.0.obs;
+  RxDouble cancelled_count = 0.0.obs;
+
+  RxDouble pending_percent = 0.0.obs;
+  RxDouble accepted_percent = 0.0.obs;
+  RxDouble preparing_percent = 0.0.obs;
+  RxDouble checkout_percent = 0.0.obs;
+  RxDouble cancelled_percent = 0.0.obs;
 
   UploadTask? uploadTask;
   @override
@@ -119,7 +129,10 @@ class DashboardScreenController extends GetxController {
       var jsonEncodedData_for_history =
           await jsonEncode(data_temp_for_history.reversed.toList());
       orderList.assignAll(await orderModelFromJson(jsonEncodedData));
+      orderList_masterlist.assignAll(await orderModelFromJson(jsonEncodedData));
       orderList_History
+          .assignAll(await orderModelFromJson(jsonEncodedData_for_history));
+      orderList_History_masterList
           .assignAll(await orderModelFromJson(jsonEncodedData_for_history));
     } catch (e) {}
   }
@@ -128,12 +141,22 @@ class DashboardScreenController extends GetxController {
     for (var z = 0; z < orderList_History.length; z++) {
       if (orderList_History[z].orderStatus == "Pending") {
         pending_count.value = pending_count.value + 1;
+      } else if (orderList_History[z].orderStatus == "Accepted") {
+        accepted_count.value = accepted_count.value + 1;
+      } else if (orderList_History[z].orderStatus == "Preparing") {
+        preparing_count.value = preparing_count.value + 1;
       } else if (orderList_History[z].orderStatus == "Checkout") {
-        success_count.value = success_count.value + 1;
+        checkout_count.value = checkout_count.value + 1;
       } else if (orderList_History[z].orderStatus == "Cancelled") {
         cancelled_count.value = cancelled_count.value + 1;
       }
     }
+
+    pending_percent.value = pending_count.value / orderList_History.length;
+    accepted_percent.value = accepted_count.value / orderList_History.length;
+    preparing_percent.value = preparing_count.value / orderList_History.length;
+    checkout_percent.value = checkout_count.value / orderList_History.length;
+    cancelled_percent.value = cancelled_count.value / orderList_History.length;
   }
 
   getProducts() async {
@@ -177,6 +200,42 @@ class DashboardScreenController extends GetxController {
         }
       }
       products_list.assignAll(temp_list);
+    }
+  }
+
+  searchOrder({required String word}) async {
+    RxList<OrderModel> temp_list = <OrderModel>[].obs;
+    if (word == "") {
+      orderList.assignAll(orderList_masterlist);
+    } else {
+      for (var i = 0; i < orderList_masterlist.length; i++) {
+        if (orderList_masterlist[i]
+            .id
+            .toLowerCase()
+            .toString()
+            .contains(word.toLowerCase().toString())) {
+          temp_list.add(orderList_masterlist[i]);
+        }
+      }
+      orderList.assignAll(temp_list);
+    }
+  }
+
+  searchHistory({required String word}) async {
+    RxList<OrderModel> temp_list = <OrderModel>[].obs;
+    if (word == "") {
+      orderList_History.assignAll(orderList_History_masterList);
+    } else {
+      for (var i = 0; i < orderList_History_masterList.length; i++) {
+        if (orderList_History_masterList[i]
+            .id
+            .toLowerCase()
+            .toString()
+            .contains(word.toLowerCase().toString())) {
+          temp_list.add(orderList_History_masterList[i]);
+        }
+      }
+      orderList_History.assignAll(temp_list);
     }
   }
 

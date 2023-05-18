@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-
+import 'package:pie_chart/pie_chart.dart';
 import '../controller/dashboard_screen_controller.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 class HistoryScreen extends GetView<DashboardScreenController> {
   static const String id = "history";
@@ -16,343 +19,198 @@ class HistoryScreen extends GetView<DashboardScreenController> {
           SizedBox(
             height: 2.h,
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 2.w),
-            child: Container(
-              height: 10.h,
-              width: 100.w,
-              decoration: BoxDecoration(),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.only(
-                        left: 2.w, right: 2.w, top: 2.h, bottom: 2.h),
-                    decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Pending: ",
-                          style: TextStyle(
-                            fontSize: 3.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Obx(
-                          () => Text(
-                            controller.pending_count.value.toString(),
-                            style: TextStyle(
-                              fontSize: 3.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: 2.w,
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(
-                        left: 2.w, right: 2.w, top: 2.h, bottom: 2.h),
-                    decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Success: ",
-                          style: TextStyle(
-                            fontSize: 3.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Obx(
-                          () => Text(
-                            controller.success_count.value.toString(),
-                            style: TextStyle(
-                              fontSize: 3.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: 2.w,
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(
-                        left: 2.w, right: 2.w, top: 2.h, bottom: 2.h),
-                    decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Cancelled: ",
-                          style: TextStyle(
-                            fontSize: 3.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Obx(
-                          () => Text(
-                            controller.cancelled_count.value.toString(),
-                            style: TextStyle(
-                              fontSize: 3.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+          Container(
+            padding: EdgeInsets.only(left: 2.w, right: 2.w),
+            height: 7.h,
+            width: 100.w,
+            child: TextField(
+              onChanged: (value) {
+                if (controller.debounceProducts?.isActive ?? false)
+                  controller.debounceProducts!.cancel();
+                controller.debounceProducts =
+                    Timer(const Duration(milliseconds: 800), () {
+                  controller.searchHistory(word: value);
+                  if (value == "") {
+                    FocusScope.of(context).unfocus();
+                  }
+                });
+              },
+              decoration: InputDecoration(
+                  hintText: "Search",
+                  fillColor: Color(0xFFF0EEEE),
+                  filled: true,
+                  contentPadding: EdgeInsets.only(left: .5.w),
+                  alignLabelWithHint: false,
+                  border: InputBorder.none),
             ),
           ),
           SizedBox(
             height: 2.h,
           ),
           Expanded(
-            child: Container(
-              child: Obx(
-                () => ListView.builder(
-                  itemCount: controller.orderList_History.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                      padding:
-                          EdgeInsets.only(left: 2.w, right: 2.w, bottom: 1.h),
-                      child: Container(
-                        color: Colors.amberAccent,
-                        padding: EdgeInsets.only(
-                            left: .5.w, right: 1.w, top: 1.h, bottom: 1.h),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  controller.orderList_History[index].id,
+              child: Padding(
+            padding: EdgeInsets.only(left: 2.w, right: 2.w),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 1.h),
+                    child: Column(
+                      children: [
+                        Container(
+                          color: Colors.orange[50],
+                          height: 5.h,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Order ID",
                                   style: TextStyle(
-                                      fontSize: 3.sp,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white),
+                                      fontSize: 2.5.sp),
                                 ),
-                                Container(
-                                    padding: EdgeInsets.only(
-                                        top: .5.h,
-                                        left: .5.w,
-                                        right: .5.w,
-                                        bottom: .5.h),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(5)),
-                                    child: Text(
-                                      controller
-                                          .orderList_History[index].orderStatus,
-                                      style: TextStyle(
-                                          fontSize: 2.5.sp,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black),
-                                    ))
-                              ],
-                            ),
-                            SizedBox(
-                              height: .5.h,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "Customer: ",
+                              )),
+                              Expanded(
+                                  child: Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Delivery Fee",
                                   style: TextStyle(
-                                      fontSize: 2.5.sp,
-                                      fontWeight: FontWeight.normal,
-                                      color: Colors.black),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2.5.sp),
                                 ),
-                                Container(
-                                    child: Text(
-                                  controller.orderList_History[index]
-                                          .customerDetails.firstname +
-                                      " " +
-                                      controller.orderList_History[index]
-                                          .customerDetails.lastname,
+                              )),
+                              Expanded(
+                                  child: Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Sub-total",
                                   style: TextStyle(
-                                      fontSize: 2.5.sp,
-                                      fontWeight: FontWeight.normal,
-                                      color: Colors.black),
-                                ))
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "Contact no: ",
-                                  style: TextStyle(
-                                      fontSize: 2.5.sp,
-                                      fontWeight: FontWeight.normal,
-                                      color: Colors.black),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2.5.sp),
                                 ),
-                                Container(
-                                    child: Text(
-                                  controller.orderList_History[index]
-                                      .customerDetails.contactno,
+                              )),
+                              Expanded(
+                                  child: Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Total",
                                   style: TextStyle(
-                                      fontSize: 2.5.sp,
-                                      fontWeight: FontWeight.normal,
-                                      color: Colors.black),
-                                ))
-                              ],
-                            ),
-                            SizedBox(
-                              height: .5.h,
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "ITEMS",
-                                style: TextStyle(
-                                    fontSize: 3.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
-                            ),
-                            SizedBox(
-                              height: .5.h,
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(
-                                  left: .5.w,
-                                  right: .5.w,
-                                  top: 1.h,
-                                  bottom: .5.h),
-                              color: Colors.white,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: controller
-                                    .orderList_History[index].orderList.length,
-                                itemBuilder:
-                                    (BuildContext context, int orderindex) {
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2.5.sp),
+                                ),
+                              )),
+                              Expanded(
+                                  child: Container(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Status",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2.5.sp),
+                                ),
+                              )),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 1.h,
+                        ),
+                        Expanded(
+                          child: Container(
+                            child: Obx(
+                              () => ListView.builder(
+                                itemCount: controller.orderList_History.length,
+                                itemBuilder: (BuildContext context, int index) {
                                   return Padding(
-                                    padding: EdgeInsets.only(bottom: 1.h),
+                                    padding: EdgeInsets.only(
+                                        bottom: .5.h, top: .5.h),
                                     child: Container(
-                                      width: 100.w,
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      child: Column(
                                         children: [
-                                          Container(
-                                            height: 8.h,
-                                            width: 5.w,
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                    fit: BoxFit.cover,
-                                                    image: NetworkImage(
-                                                        controller
-                                                            .orderList_History[
-                                                                index]
-                                                            .orderList[
-                                                                orderindex]
-                                                            .productImage))),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                  child: Container(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  controller
+                                                      .orderList_History[index]
+                                                      .id
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 2.5.sp),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: Container(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  " ₱ " +
+                                                      controller
+                                                          .orderList_History[
+                                                              index]
+                                                          .deliveryFee
+                                                          .toString(),
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 2.5.sp),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: Container(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  " ₱ " +
+                                                      controller
+                                                          .orderList_History[
+                                                              index]
+                                                          .orderSubtotal
+                                                          .toString(),
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 2.5.sp),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: Container(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  " ₱ " +
+                                                      controller
+                                                          .orderList_History[
+                                                              index]
+                                                          .orderTotal
+                                                          .toString(),
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 2.5.sp),
+                                                ),
+                                              )),
+                                              Expanded(
+                                                  child: Container(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  controller
+                                                      .orderList_History[index]
+                                                      .orderStatus
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 2.5.sp),
+                                                ),
+                                              )),
+                                            ],
                                           ),
-                                          SizedBox(
-                                            width: .5.w,
-                                          ),
-                                          Expanded(
-                                            child: Container(
-                                              height: 8.h,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Container(
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          controller
-                                                              .orderList_History[
-                                                                  index]
-                                                              .orderList[
-                                                                  orderindex]
-                                                              .productName,
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 2.5.sp),
-                                                        ),
-                                                        Text(
-                                                          "₱ " +
-                                                              (controller
-                                                                          .orderList_History[
-                                                                              index]
-                                                                          .orderList[
-                                                                              orderindex]
-                                                                          .productQty *
-                                                                      controller
-                                                                          .orderList_History[
-                                                                              index]
-                                                                          .orderList[
-                                                                              orderindex]
-                                                                          .productPrice)
-                                                                  .toString(),
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 2.5.sp),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "₱ " +
-                                                        controller
-                                                            .orderList_History[
-                                                                index]
-                                                            .orderList[
-                                                                orderindex]
-                                                            .productPrice
-                                                            .toString(),
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 2.sp),
-                                                  ),
-                                                  Expanded(child: SizedBox()),
-                                                  Text(
-                                                    controller
-                                                            .orderList_History[
-                                                                index]
-                                                            .orderList[
-                                                                orderindex]
-                                                            .productQty
-                                                            .toString() +
-                                                        " x " +
-                                                        controller
-                                                            .orderList_History[
-                                                                index]
-                                                            .orderList[
-                                                                orderindex]
-                                                            .productPrice
-                                                            .toString(),
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        fontSize: 2.sp),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )
+                                          Divider()
                                         ],
                                       ),
                                     ),
@@ -360,94 +218,236 @@ class HistoryScreen extends GetView<DashboardScreenController> {
                                 },
                               ),
                             ),
-                            SizedBox(
-                              height: 1.5.h,
-                            ),
-                            Container(
-                              width: 100.w,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Sub-total",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 2.5.sp),
-                                  ),
-                                  Text(
-                                    "₱ " +
-                                        controller.orderList_History[index]
-                                            .orderSubtotal
-                                            .toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 2.5.sp),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 100.w,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Delivery Fee",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 2.5.sp),
-                                  ),
-                                  Text(
-                                    "₱ " +
-                                        controller.orderList_History[index]
-                                            .deliveryFee
-                                            .toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 2.5.sp),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 1.h,
-                            ),
-                            Container(
-                              width: 100.w,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Total",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 3.sp),
-                                  ),
-                                  Text(
-                                    "₱ " +
-                                        controller
-                                            .orderList_History[index].orderTotal
-                                            .toString(),
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 3.sp),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 1.h),
+                  child: VerticalDivider(),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 1.h),
+                  child: Container(
+                    padding: EdgeInsets.only(
+                        left: 1.w, right: 1.w, top: 1.h, bottom: 1.h),
+                    width: 20.w,
+                    color: Colors.orange[50],
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(top: 1.h),
+                          height: 38.h,
+                          width: 100.w,
+                          color: Colors.white,
+                          child: Obx(
+                            () => PieChart(
+                              dataMap: {
+                                "Pending": controller.pending_count.value,
+                                "Accepted": controller.accepted_count.value,
+                                "Preparing": controller.preparing_count.value,
+                                "Checkout": controller.checkout_count.value,
+                                "Cancelled": controller.cancelled_count.value,
+                              },
+                              colorList: [
+                                Colors.orange,
+                                Colors.yellow,
+                                Colors.blue,
+                                Colors.green,
+                                Colors.red
+                              ],
+                              legendOptions: LegendOptions(
+                                showLegendsInRow: true,
+                                legendPosition: LegendPosition.bottom,
+                                showLegends: true,
+                                legendTextStyle: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 1.h,
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 1.h),
+                          height: 38.h,
+                          width: 100.w,
+                          color: Colors.white,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                  child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Obx(
+                                    () => CircularPercentIndicator(
+                                      radius: 40.0,
+                                      lineWidth: 8.0,
+                                      animation: true,
+                                      percent: controller.pending_percent.value,
+                                      center: Text(
+                                        (controller.pending_percent.value * 100)
+                                                .toStringAsFixed(2)
+                                                .toString() +
+                                            "%",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      footer: Text(
+                                        "Pending",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      circularStrokeCap:
+                                          CircularStrokeCap.round,
+                                      progressColor: Colors.orange,
+                                    ),
+                                  ),
+                                  Obx(
+                                    () => CircularPercentIndicator(
+                                      radius: 40.0,
+                                      lineWidth: 8.0,
+                                      animation: true,
+                                      percent:
+                                          controller.accepted_percent.value,
+                                      center: Text(
+                                        (controller.accepted_percent.value *
+                                                    100)
+                                                .toStringAsFixed(2)
+                                                .toString() +
+                                            "%",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      footer: Text(
+                                        "Accepted",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      circularStrokeCap:
+                                          CircularStrokeCap.round,
+                                      progressColor: Colors.yellow,
+                                    ),
+                                  ),
+                                ],
+                              )),
+                              Expanded(
+                                  child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Obx(
+                                    () => CircularPercentIndicator(
+                                      radius: 40.0,
+                                      lineWidth: 8.0,
+                                      animation: true,
+                                      percent:
+                                          controller.preparing_percent.value,
+                                      center: Text(
+                                        (controller.preparing_percent.value *
+                                                    100)
+                                                .toStringAsFixed(2)
+                                                .toString() +
+                                            "%",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      footer: Text(
+                                        "Preparing",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      circularStrokeCap:
+                                          CircularStrokeCap.round,
+                                      progressColor: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              )),
+                              Expanded(
+                                  child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Obx(
+                                    () => CircularPercentIndicator(
+                                      radius: 40.0,
+                                      lineWidth: 8.0,
+                                      animation: true,
+                                      percent:
+                                          controller.checkout_percent.value,
+                                      center: Text(
+                                        (controller.checkout_percent.value *
+                                                    100)
+                                                .toStringAsFixed(2)
+                                                .toString() +
+                                            "%",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      footer: Text(
+                                        "Checkout",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      circularStrokeCap:
+                                          CircularStrokeCap.round,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ),
+                                  Obx(
+                                    () => CircularPercentIndicator(
+                                      radius: 40.0,
+                                      lineWidth: 8.0,
+                                      animation: true,
+                                      percent:
+                                          controller.cancelled_percent.value,
+                                      center: Text(
+                                        (controller.cancelled_percent.value *
+                                                    100)
+                                                .toStringAsFixed(2)
+                                                .toString() +
+                                            "%",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      footer: Text(
+                                        "Cancelled",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 2.50.sp),
+                                      ),
+                                      circularStrokeCap:
+                                          CircularStrokeCap.round,
+                                      progressColor: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              )),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          )
+          ))
         ],
       ),
     );
