@@ -15,9 +15,20 @@ import '../widget/AddProductscreen_alertdialog.dart';
 class DashboardScreenController extends GetxController {
   RxList<OrderModel> orderList = <OrderModel>[].obs;
   RxList<OrderModel> orderList_History = <OrderModel>[].obs;
+
+  RxList<OrderList> items = <OrderList>[].obs;
+
   RxList<ProductsModel> products_list = <ProductsModel>[].obs;
   RxList<ProductsModel> products_list_masterList = <ProductsModel>[].obs;
   RxString imageName = ''.obs;
+  RxString status = ''.obs;
+  RxString order_id = ''.obs;
+  RxString userToken = ''.obs;
+
+  RxString delivery_fee = ''.obs;
+  RxString subtotal = ''.obs;
+  RxString total_amount = ''.obs;
+
   final ImagePicker picker = ImagePicker();
   Timer? _debounce;
   Timer? debounceProducts;
