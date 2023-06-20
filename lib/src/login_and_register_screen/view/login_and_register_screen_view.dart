@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import '../controller/login_screen_controller.dart';
+import '../controller/login_and_register_screen_controller.dart';
+import '../widget/login.dart';
+import '../widget/register.dart';
 
-class LoginScreenView extends GetView<LoginScreenController> {
+class LoginAndRegisterScreenView
+    extends GetView<LoginAndRegistrationScreenController> {
   static const String id = "login";
 
   @override
   Widget build(BuildContext context) {
-    Get.put(LoginScreenController());
+    Get.put(LoginAndRegistrationScreenController());
     return RawKeyboardListener(
       autofocus: false,
       focusNode: FocusNode(),
@@ -53,6 +56,9 @@ class LoginScreenView extends GetView<LoginScreenController> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
+                          SizedBox(
+                            width: 2.w,
+                          ),
                           Padding(
                             padding: EdgeInsets.only(top: 1.h),
                             child: Text(
@@ -88,19 +94,26 @@ class LoginScreenView extends GetView<LoginScreenController> {
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 1.h),
-                            child: Container(
-                              height: 4.h,
-                              width: 5.w,
-                              decoration: BoxDecoration(
-                                  color: Colors.orange,
-                                  borderRadius: BorderRadius.circular(25)),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "LOGIN",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 2.sp,
-                                    color: Colors.white),
+                            child: InkWell(
+                              onTap: () {
+                                if (controller.isLoginView.value == false) {
+                                  controller.isLoginView.value = true;
+                                }
+                              },
+                              child: Container(
+                                height: 4.h,
+                                width: 5.w,
+                                decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(25)),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "LOGIN",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2.sp,
+                                      color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
@@ -109,20 +122,27 @@ class LoginScreenView extends GetView<LoginScreenController> {
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 1.h),
-                            child: Container(
-                              height: 4.h,
-                              width: 5.w,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      color: Colors.orange, width: 3),
-                                  borderRadius: BorderRadius.circular(25)),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "SIGN UP",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 2.sp,
+                            child: InkWell(
+                              onTap: () {
+                                if (controller.isLoginView.value == true) {
+                                  controller.isLoginView.value = false;
+                                }
+                              },
+                              child: Container(
+                                height: 4.h,
+                                width: 5.w,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: Colors.orange, width: 3),
+                                    borderRadius: BorderRadius.circular(25)),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "SIGN UP",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 2.sp,
+                                  ),
                                 ),
                               ),
                             ),
@@ -167,149 +187,9 @@ class LoginScreenView extends GetView<LoginScreenController> {
               SizedBox(
                 height: 5.h,
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 38.w, right: 38.w),
-                child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Color(0xFFE0E0E0), width: 1),
-                      borderRadius: BorderRadius.circular(3)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 2.h,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2.w, right: 2.w),
-                        child: Text(
-                          "Email",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400, fontSize: 2.5.sp),
-                        ),
-                      ),
-                      SizedBox(
-                        height: .5.h,
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(left: 2.w, right: 2.w),
-                        height: 7.h,
-                        width: 100.w,
-                        child: TextField(
-                          onChanged: (value) {},
-                          onEditingComplete: () {
-                            controller.login(
-                                username: controller.username.text,
-                                password: controller.password.text);
-                          },
-                          controller: controller.username,
-                          decoration: InputDecoration(
-                              fillColor: Color(0xFFF0EEEE),
-                              filled: true,
-                              contentPadding: EdgeInsets.only(left: .5.w),
-                              alignLabelWithHint: false,
-                              border: InputBorder.none),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 1.h,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2.w, right: 2.w),
-                        child: Text(
-                          "Password",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400, fontSize: 2.5.sp),
-                        ),
-                      ),
-                      SizedBox(
-                        height: .5.h,
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(left: 2.w, right: 2.w),
-                        height: 7.h,
-                        width: 100.w,
-                        child: TextField(
-                          onChanged: (value) {},
-                          onEditingComplete: () {
-                            controller.login(
-                                username: controller.username.text,
-                                password: controller.password.text);
-                          },
-                          obscureText: true,
-                          controller: controller.password,
-                          decoration: InputDecoration(
-                              fillColor: Color(0xFFF0EEEE),
-                              filled: true,
-                              contentPadding: EdgeInsets.only(left: .5.w),
-                              alignLabelWithHint: false,
-                              border: InputBorder.none),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 1.h,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2.w, right: 2.w),
-                        child: InkWell(
-                          onTap: () {
-                            controller.login(
-                                username: controller.username.text,
-                                password: controller.password.text);
-                          },
-                          child: Container(
-                            height: 5.h,
-                            width: 100.w,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: Colors.amber[900],
-                                border: Border.all(color: Colors.orange),
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Text(
-                              "LOGIN",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 3.sp,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 2.h,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2.w, right: 2.w),
-                        child: Container(
-                          height: 5.h,
-                          width: 100.w,
-                          color: Colors.white,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Not yet registered? ",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 2.2.sp),
-                              ),
-                              Text(
-                                "Create a free account.",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
-                                    fontSize: 2.2.sp),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 2.h,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              Obx(() => controller.isLoginView.value == true
+                  ? LoginView()
+                  : RegisterView()),
               Expanded(
                   child: Container(
                 alignment: Alignment.center,

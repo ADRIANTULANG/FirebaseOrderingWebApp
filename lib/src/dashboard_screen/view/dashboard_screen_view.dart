@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:orderingappwebadmin/services/getstorage_services.dart';
 import 'package:orderingappwebadmin/src/dashboard_screen/widget/HistoryScreen.dart';
-import '../../login_screen/view/login_screen_view.dart';
+import '../../login_and_register_screen/view/login_and_register_screen_view.dart';
 import '../controller/dashboard_screen_controller.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'package:sizer/sizer.dart';
@@ -19,6 +19,8 @@ class DashboardScreenView extends StatefulWidget {
 
 class _DashboardScreenViewState extends State<DashboardScreenView> {
   RxString selectedScreen = OrderScreen.id.obs;
+
+  final controller = Get.put(DashboardScreenController());
   @override
   void initState() {
     if (Get.find<StorageServices>().storage.read("screen") != null) {
@@ -27,20 +29,23 @@ class _DashboardScreenViewState extends State<DashboardScreenView> {
     super.initState();
   }
 
-  currenctScreen({required AdminMenuItem item}) {
+  currenctScreen({required AdminMenuItem item}) async {
     if (item.route == OrderScreen.id) {
       selectedScreen.value = OrderScreen.id;
+      await controller.getOrders();
+      controller.getCounts();
     } else if (item.route == ProductScreen.id) {
       selectedScreen.value = ProductScreen.id;
     } else if (item.route == HistoryScreen.id) {
       selectedScreen.value = HistoryScreen.id;
+      await controller.getOrders();
+      controller.getCounts();
     }
     Get.find<StorageServices>().saveRoute(screen: selectedScreen.value);
   }
 
   @override
   Widget build(BuildContext context) {
-    Get.put(DashboardScreenController());
     return AdminScaffold(
         appBar: AppBar(
           title: Container(
@@ -95,7 +100,7 @@ class _DashboardScreenViewState extends State<DashboardScreenView> {
           footer: InkWell(
             onTap: () {
               Get.find<StorageServices>().removeStorageCredentials();
-              Get.offAllNamed(LoginScreenView.id);
+              Get.offAllNamed(LoginAndRegisterScreenView.id);
             },
             child: Container(
               height: 4.h,

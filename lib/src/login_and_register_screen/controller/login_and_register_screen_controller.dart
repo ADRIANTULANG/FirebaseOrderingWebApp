@@ -1,13 +1,23 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:orderingappwebadmin/src/add_details_screen/view/add_details_view.dart';
 import 'package:orderingappwebadmin/src/dashboard_screen/view/dashboard_screen_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../services/getstorage_services.dart';
+import '../alertdialog/dialogs.dart';
+// import '../alertdialog/dialogs.dart';
 
-class LoginScreenController extends GetxController {
+class LoginAndRegistrationScreenController extends GetxController {
   TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
+  FirebaseAuth auth = FirebaseAuth.instance;
+  RxBool isLoginView = true.obs;
+
+  Timer? time;
 
   final Uri facebookUrl = Uri.parse('https://www.facebook.com/');
   final Uri weChatUrl = Uri.parse('https://www.wechat.com/');
@@ -19,6 +29,7 @@ class LoginScreenController extends GetxController {
 
   @override
   void onClose() {
+    time!.cancel();
     super.onClose();
   }
 
@@ -88,6 +99,31 @@ class LoginScreenController extends GetxController {
       webOnlyWindowName: '_blank',
     )) {
       throw Exception('Could not launch $discordUrl');
+    }
+  }
+
+  emailVerification() async {
+    try {
+      await auth.createUserWithEmailAndPassword(
+          email: username.text, password: password.text);
+      var user = auth.currentUser!;
+      await user.sendEmailVerification();
+      Dialogs.showMessage();
+      time = Timer.periodic(const Duration(seconds: 5), (timer) async {
+        await FirebaseAuth.instance.currentUser?.reload();
+        final user = FirebaseAuth.instance.currentUser;
+        if (user?.emailVerified ?? false) {
+          print("user verified the account!");
+          timer.cancel();
+          Get.toNamed(AddDetailsView.id, arguments: {
+            'username': username.text,
+            'password': password.text,
+          });
+        }
+      });
+    } on Exception catch (e) {
+      print("ERROR $e");
+      Dialogs.showErrorMessage(error: e.toString());
     }
   }
 }
