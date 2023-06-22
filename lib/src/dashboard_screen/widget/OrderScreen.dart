@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-
+import 'package:intl/intl.dart';
 import '../controller/dashboard_screen_controller.dart';
 
 class OrderScreen extends GetView<DashboardScreenController> {
@@ -131,6 +131,13 @@ class OrderScreen extends GetView<DashboardScreenController> {
                                         children: [
                                           InkWell(
                                             onTap: () {
+                                              controller.selected_customer_id
+                                                      .value =
+                                                  controller.orderList[index]
+                                                      .customer_id;
+                                              controller.showChat(
+                                                  orderID: controller
+                                                      .orderList[index].id);
                                               controller.items.assignAll(
                                                   controller.orderList[index]
                                                       .orderList);
@@ -258,6 +265,42 @@ class OrderScreen extends GetView<DashboardScreenController> {
                     color: Colors.orange[50],
                     child: Column(
                       children: [
+                        Container(
+                          height: 3.h,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  controller.isOrderList_or_ChatList.value =
+                                      true;
+                                },
+                                child: Icon(
+                                  Icons.list,
+                                  size: 4.sp,
+                                ),
+                              ),
+                              SizedBox(
+                                width: .5.w,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  controller.isOrderList_or_ChatList.value =
+                                      false;
+                                  Future.delayed(Duration(seconds: 3), () {
+                                    controller.scrollcontroller.jumpTo(
+                                        controller.scrollcontroller.position
+                                            .maxScrollExtent);
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.chat_rounded,
+                                  size: 4.sp,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
                         Obx(
                           () => controller.order_id.value == ""
                               ? SizedBox()
@@ -338,111 +381,285 @@ class OrderScreen extends GetView<DashboardScreenController> {
                         SizedBox(
                           height: 1.h,
                         ),
-                        Expanded(
-                          child: Container(
-                            color: Colors.white,
-                            padding: EdgeInsets.only(
-                                left: 1.w, right: 1.w, top: 2.h, bottom: 1.h),
-                            child: Obx(
-                              () => ListView.builder(
-                                itemCount: controller.items.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Padding(
-                                    padding: EdgeInsets.only(bottom: 1.h),
-                                    child: Container(
-                                      height: 10.h,
-                                      width: 100.w,
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            height: 10.h,
-                                            width: 5.w,
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                    fit: BoxFit.cover,
-                                                    image: NetworkImage(
-                                                        controller.items[index]
-                                                            .productImage))),
-                                          ),
-                                          SizedBox(
-                                            width: .5.w,
-                                          ),
-                                          Expanded(
-                                              child: Container(
-                                            height: 10.h,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Text(
-                                                      controller.items[index]
-                                                          .productName,
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 2.5.sp),
-                                                    ),
-                                                    Text(
-                                                      controller.items[index]
-                                                              .productQty
-                                                              .toString() +
-                                                          "pcs.",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          fontSize: 2.5.sp),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Text(
-                                                  " ₱ " +
-                                                      controller.items[index]
-                                                          .productPrice
-                                                          .toString(),
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: 2.5.sp),
-                                                ),
-                                                Expanded(
-                                                    child: Container(
-                                                  alignment:
-                                                      Alignment.bottomRight,
-                                                  child: Text(
-                                                    " ₱ " +
-                                                        (controller.items[index]
-                                                                    .productPrice *
+                        Obx(
+                          () => controller.isOrderList_or_ChatList.value == true
+                              ? Expanded(
+                                  child: Container(
+                                    color: Colors.white,
+                                    padding: EdgeInsets.only(
+                                        left: 1.w,
+                                        right: 1.w,
+                                        top: 2.h,
+                                        bottom: 1.h),
+                                    child: Obx(
+                                      () => ListView.builder(
+                                        itemCount: controller.items.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return Padding(
+                                            padding:
+                                                EdgeInsets.only(bottom: 1.h),
+                                            child: Container(
+                                              height: 10.h,
+                                              width: 100.w,
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    height: 10.h,
+                                                    width: 5.w,
+                                                    decoration: BoxDecoration(
+                                                        image: DecorationImage(
+                                                            fit: BoxFit.cover,
+                                                            image: NetworkImage(
                                                                 controller
                                                                     .items[
                                                                         index]
-                                                                    .productQty)
-                                                            .toString(),
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 2.5.sp),
+                                                                    .productImage))),
                                                   ),
-                                                ))
-                                              ],
+                                                  SizedBox(
+                                                    width: .5.w,
+                                                  ),
+                                                  Expanded(
+                                                      child: Container(
+                                                    height: 10.h,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              controller
+                                                                  .items[index]
+                                                                  .productName,
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize:
+                                                                      2.5.sp),
+                                                            ),
+                                                            Text(
+                                                              controller
+                                                                      .items[
+                                                                          index]
+                                                                      .productQty
+                                                                      .toString() +
+                                                                  "pcs.",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  fontSize:
+                                                                      2.5.sp),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Text(
+                                                          " ₱ " +
+                                                              controller
+                                                                  .items[index]
+                                                                  .productPrice
+                                                                  .toString(),
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              fontSize: 2.5.sp),
+                                                        ),
+                                                        Expanded(
+                                                            child: Container(
+                                                          alignment: Alignment
+                                                              .bottomRight,
+                                                          child: Text(
+                                                            " ₱ " +
+                                                                (controller
+                                                                            .items[
+                                                                                index]
+                                                                            .productPrice *
+                                                                        controller
+                                                                            .items[index]
+                                                                            .productQty)
+                                                                    .toString(),
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize:
+                                                                    2.5.sp),
+                                                          ),
+                                                        ))
+                                                      ],
+                                                    ),
+                                                  ))
+                                                ],
+                                              ),
                                             ),
-                                          ))
-                                        ],
+                                          );
+                                        },
                                       ),
                                     ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
+                                  ),
+                                )
+                              : Expanded(
+                                  child: Container(
+                                  color: Colors.white,
+                                  padding: EdgeInsets.only(
+                                      left: 1.w,
+                                      right: 1.w,
+                                      top: 2.h,
+                                      bottom: 1.h),
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: Obx(
+                                          () => ListView.builder(
+                                            itemCount: controller
+                                                .chatListforDisplay.length,
+                                            controller:
+                                                controller.scrollcontroller,
+                                            shrinkWrap: true,
+                                            padding: EdgeInsets.only(
+                                                top: 10, bottom: 10),
+                                            itemBuilder: (context, index) {
+                                              return Column(
+                                                children: [
+                                                  Container(
+                                                    padding: EdgeInsets.only(
+                                                      left: 14,
+                                                      right: 14,
+                                                      top: 10,
+                                                    ),
+                                                    child: Align(
+                                                      alignment: (controller
+                                                                  .chatListforDisplay[
+                                                                      index]
+                                                                  .sender ==
+                                                              "customer"
+                                                          ? Alignment.topLeft
+                                                          : Alignment.topRight),
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                          color: (controller
+                                                                      .chatListforDisplay[
+                                                                          index]
+                                                                      .sender ==
+                                                                  "customer"
+                                                              ? Colors
+                                                                  .grey.shade200
+                                                              : Colors
+                                                                  .orange[200]),
+                                                        ),
+                                                        padding:
+                                                            EdgeInsets.all(16),
+                                                        child: Text(
+                                                          controller
+                                                              .chatList[index]
+                                                              .message,
+                                                          style: TextStyle(
+                                                              fontSize: 15),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                      left: 2.w,
+                                                      right: 2.w,
+                                                    ),
+                                                    child: Align(
+                                                        alignment: (controller
+                                                                    .chatListforDisplay[
+                                                                        index]
+                                                                    .sender ==
+                                                                "customer"
+                                                            ? Alignment.topLeft
+                                                            : Alignment
+                                                                .topRight),
+                                                        child: Text(
+                                                          DateFormat('yMMMd')
+                                                                  .format(controller
+                                                                      .chatListforDisplay[
+                                                                          index]
+                                                                      .date) +
+                                                              " " +
+                                                              DateFormat('jm')
+                                                                  .format(controller
+                                                                      .chatListforDisplay[
+                                                                          index]
+                                                                      .date),
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color:
+                                                                  Colors.grey,
+                                                              fontSize: 1.5.sp),
+                                                        )),
+                                                  )
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        height: 5.h,
+                                        color: Colors.grey[200],
+                                        padding: EdgeInsets.only(
+                                            left: 1.w, right: 1.w),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              height: 4.h,
+                                              width: 20.w,
+                                              child: TextField(
+                                                controller: controller.message,
+                                                decoration: InputDecoration(
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    contentPadding:
+                                                        EdgeInsets.only(
+                                                            left: .5.w),
+                                                    alignLabelWithHint: false,
+                                                    border: OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8)),
+                                                    hintText:
+                                                        'Type something..'),
+                                              ),
+                                            ),
+                                            InkWell(
+                                                onTap: () {
+                                                  controller.sendMessage(
+                                                      chat: controller
+                                                          .message.text);
+                                                },
+                                                child: Icon(Icons.send))
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )),
                         ),
                         Divider(),
                         Container(

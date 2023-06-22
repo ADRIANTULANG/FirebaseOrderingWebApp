@@ -8,6 +8,8 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:orderingappwebadmin/services/getstorage_services.dart';
 import 'package:http/http.dart' as http;
+import 'package:sizer/sizer.dart';
+import '../model/dashboard_screen_chat_model.dart';
 import '../model/dashboard_screen_order_model.dart';
 import '../model/dashboard_screen_products_model.dart';
 import '../widget/AddProductscreen_alertdialog.dart';
@@ -18,6 +20,8 @@ class DashboardScreenController extends GetxController {
   RxList<OrderModel> orderList_History = <OrderModel>[].obs;
   RxList<OrderModel> orderList_History_masterList = <OrderModel>[].obs;
 
+  RxList<ChatModel> chatList = <ChatModel>[].obs;
+  RxList<ChatModel> chatListforDisplay = <ChatModel>[].obs;
   RxList<OrderList> items = <OrderList>[].obs;
 
   RxList<ProductsModel> products_list = <ProductsModel>[].obs;
@@ -30,6 +34,7 @@ class DashboardScreenController extends GetxController {
   RxString delivery_fee = ''.obs;
   RxString subtotal = ''.obs;
   RxString total_amount = ''.obs;
+  RxString selected_customer_id = ''.obs;
 
   final ImagePicker picker = ImagePicker();
   Timer? _debounce;
@@ -55,20 +60,235 @@ class DashboardScreenController extends GetxController {
   RxDouble checkout_percent = 0.0.obs;
   RxDouble cancelled_percent = 0.0.obs;
 
+  Stream? streamChats;
+  StreamSubscription<dynamic>? chat_listener;
+  RxBool isOrderList_or_ChatList = true.obs;
+  RxBool isShown = false.obs;
+
   UploadTask? uploadTask;
+
+  TextEditingController message = TextEditingController();
+  Timer? debounce;
+  ScrollController scrollcontroller = ScrollController();
   @override
   void onInit() async {
     await getOrders();
+    await getChat();
     ordersListener();
     getProducts();
     getCounts();
+    streamChat();
     super.onInit();
   }
 
   @override
   void onClose() {
     listener!.cancel();
+    chat_listener!.cancel();
+    debounce!.cancel();
     super.onClose();
+  }
+
+  getChat() async {
+    List data = [];
+    var storeDocumentReference = await FirebaseFirestore.instance
+        .collection('store')
+        .doc(Get.find<StorageServices>().storage.read("id"));
+
+    var res = await FirebaseFirestore.instance
+        .collection('chat')
+        .where("store", isEqualTo: storeDocumentReference)
+        .get();
+
+    var chatData = await res.docs;
+    for (var i = 0; i < chatData.length; i++) {
+      Map obj = {
+        "id": chatData[i].id,
+        "message": chatData[i]['message'],
+        "sender": chatData[i]['sender'],
+        "date": chatData[i]['date'].toDate().toString(),
+        "orderid": chatData[i]['orderid'],
+      };
+      data.add(obj);
+    }
+    var encodedData = await jsonEncode(data);
+    chatList.assignAll(await chatModelFromJson(encodedData));
+    chatList.sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  streamChat() async {
+    var storeDocumentReference = await FirebaseFirestore.instance
+        .collection('store')
+        .doc(Get.find<StorageServices>().storage.read("id"));
+
+    streamChats = await FirebaseFirestore.instance
+        .collection('chat')
+        .where("store", isEqualTo: storeDocumentReference)
+        .snapshots();
+
+    chat_listener = await streamChats!.listen(
+      (event) {
+        List docChanges = [];
+        for (var change in event.docChanges) {
+          bool isExist = false;
+          for (var i = 0; i < chatList.length; i++) {
+            if (chatList[i].id == change.doc.id) {
+              isExist = true;
+            }
+          }
+          // print("$isExist ${change.doc.id}");
+          // print(change.doc['customer'].id);
+          if (isExist == false) {
+            chatList.add(ChatModel(
+                id: change.doc.id,
+                message: change.doc['message'],
+                sender: change.doc['sender'],
+                orderid: change.doc['orderid'],
+                date: change.doc['date'].toDate()));
+            if (chatListforDisplay.length > 0 &&
+                selected_customer_id.value == change.doc['customer'].id &&
+                change.doc['sender'] == "customer") {
+              chatListforDisplay.add(ChatModel(
+                  id: change.doc.id,
+                  message: change.doc['message'],
+                  sender: change.doc['sender'],
+                  orderid: change.doc['orderid'],
+                  date: change.doc['date'].toDate()));
+            }
+            if (change.doc['sender'] == "customer") {
+              if (debounce?.isActive ?? false) debounce!.cancel();
+
+              if (scrollcontroller.hasClients) {
+                Future.delayed(Duration(seconds: 3), () {
+                  scrollcontroller
+                      .jumpTo(scrollcontroller.position.maxScrollExtent);
+                });
+                docChanges.add({
+                  "id": change.doc.id,
+                  "message": change.doc['message'],
+                  "order_id": change.doc['orderid'],
+                });
+              }
+            }
+          }
+        }
+        final stores = docChanges.map((e) => e['id']).toSet();
+        docChanges.retainWhere((x) => stores.remove(x['id']));
+
+        showSnackBar(docChanges: docChanges);
+      },
+    );
+  }
+
+  showSnackBar({required List docChanges}) async {
+    print(docChanges.length);
+    ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
+    ScaffoldMessenger.of(Get.context!).removeCurrentSnackBar();
+    ScaffoldMessenger.of(Get.context!).clearSnackBars();
+    for (var i = 0; i < docChanges.length; i++) {
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 5),
+          content: Container(
+            width: 100.w,
+            height: 7.h,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 100.w,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Message",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 3.sp,
+                            color: Colors.black),
+                      ),
+                      Text(
+                        docChanges[i]['message'],
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 2.sp,
+                            color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "Order#: ",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 2.sp,
+                          color: Colors.grey),
+                    ),
+                    Text(
+                      docChanges[i]['order_id'],
+                      style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 2.sp,
+                          color: Colors.grey),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+          backgroundColor: Colors.orange[100],
+          action: SnackBarAction(
+            textColor: Colors.black,
+            label: 'View',
+            onPressed: () {},
+          ),
+        ),
+      );
+    }
+  }
+
+  showChat({required String orderID}) {
+    chatListforDisplay.clear();
+    for (var i = 0; i < chatList.length; i++) {
+      if (orderID == chatList[i].orderid) {
+        chatListforDisplay.add(chatList[i]);
+      }
+    }
+    Future.delayed(Duration(seconds: 3), () {
+      scrollcontroller.jumpTo(scrollcontroller.position.maxScrollExtent);
+    });
+  }
+
+  sendMessage({required String chat}) async {
+    try {
+      var storeDocumentReference = await FirebaseFirestore.instance
+          .collection('store')
+          .doc(Get.find<StorageServices>().storage.read("id"));
+      var userDocumentReference = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(selected_customer_id.value);
+      var res = await FirebaseFirestore.instance.collection('chat').add({
+        "customer": userDocumentReference,
+        "date": Timestamp.now(),
+        "message": chat,
+        "orderid": order_id.value.toString(),
+        "sender": "store",
+        "store": storeDocumentReference
+      });
+      chatListforDisplay.add(ChatModel(
+          id: res.id,
+          message: chat,
+          sender: "store",
+          orderid: order_id.value.toString(),
+          date: DateTime.now()));
+      message.clear();
+      Future.delayed(Duration(seconds: 3), () {
+        scrollcontroller.jumpTo(scrollcontroller.position.maxScrollExtent);
+      });
+    } catch (e) {}
   }
 
   getOrders() async {
@@ -106,10 +326,10 @@ class DashboardScreenController extends GetxController {
             orders.add(elements);
           });
         });
-
         Map elementData = {
           "id": storeData[i].id,
           "customer_details": customerDetailResult.data(),
+          "customer_id": storeData[i]['customer_id'].id,
           "delivery_fee": storeData[i]['delivery_fee'],
           "order_status": storeData[i]['order_status'],
           "order_store_id": storeData[i]['order_store_id'].id,

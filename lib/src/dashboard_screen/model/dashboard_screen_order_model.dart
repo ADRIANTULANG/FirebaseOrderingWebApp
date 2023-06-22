@@ -18,6 +18,7 @@ class OrderModel {
   String orderStoreId;
   double orderSubtotal;
   double orderTotal;
+  String customer_id;
   List<OrderList> orderList;
 
   OrderModel({
@@ -28,6 +29,7 @@ class OrderModel {
     required this.orderStoreId,
     required this.orderSubtotal,
     required this.orderTotal,
+    required this.customer_id,
     required this.orderList,
   });
 
@@ -39,6 +41,7 @@ class OrderModel {
         orderStoreId: json["order_store_id"],
         orderSubtotal: json["order_subtotal"],
         orderTotal: json["order_total"],
+        customer_id: json["customer_id"],
         orderList: List<OrderList>.from(
             json["order_list"].map((x) => OrderList.fromJson(x))),
       );
@@ -50,6 +53,7 @@ class OrderModel {
         "order_status": orderStatus,
         "order_store_id": orderStoreId,
         "order_subtotal": orderSubtotal,
+        "customer_id": customer_id,
         "order_total": orderTotal,
         "order_list": List<dynamic>.from(orderList.map((x) => x.toJson())),
       };
