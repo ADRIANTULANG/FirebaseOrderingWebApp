@@ -257,9 +257,11 @@ class DashboardScreenController extends GetxController {
         chatListforDisplay.add(chatList[i]);
       }
     }
-    Future.delayed(Duration(seconds: 3), () {
-      scrollcontroller.jumpTo(scrollcontroller.position.maxScrollExtent);
-    });
+    if (scrollcontroller.hasClients) {
+      Future.delayed(Duration(seconds: 3), () {
+        scrollcontroller.jumpTo(scrollcontroller.position.maxScrollExtent);
+      });
+    }
   }
 
   sendMessage({required String chat}) async {
@@ -285,10 +287,42 @@ class DashboardScreenController extends GetxController {
           orderid: order_id.value.toString(),
           date: DateTime.now()));
       message.clear();
+      sendNotificationIfOffline(chat: chat, orderid: order_id.value.toString());
       Future.delayed(Duration(seconds: 3), () {
         scrollcontroller.jumpTo(scrollcontroller.position.maxScrollExtent);
       });
     } catch (e) {}
+  }
+
+  sendNotificationIfOffline(
+      {required String chat, required String orderid}) async {
+    var customer = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(selected_customer_id.value)
+        .get();
+
+    var data = customer.data();
+    bool isonline = jsonDecode(jsonEncode(data))['online'];
+    String fcmToken = jsonDecode(jsonEncode(data))['fcmToken'];
+    if (isonline == false) {
+      var body = jsonEncode({
+        "to": "$fcmToken",
+        "notification": {
+          "body": chat,
+          "title": Get.find<StorageServices>().storage.read('name'),
+          "subtitle": "Tracking Order: $orderid",
+        }
+      });
+      var e2epushnotif =
+          await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
+              headers: {
+                "Authorization":
+                    "key=AAAAFXgQldg:APA91bH0blj9KQykFmRZ1Pjub61SPwFyaq-YjvtH1vTvsOeNQ6PTWCYm5S7pOZIuB5zuc7hrFFYsRbuxEB8vF9N5nQoW9fZckjy4bwwltxf4ATPeBDH4L4VlZ1yyVBHF3OKr3yVZ_Ioy",
+                "Content-Type": "application/json"
+              },
+              body: body);
+      print("e2e notif: ${e2epushnotif.body}");
+    }
   }
 
   getOrders() async {
