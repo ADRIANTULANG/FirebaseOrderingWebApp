@@ -98,6 +98,7 @@ class DashboardScreenController extends GetxController {
     var res = await FirebaseFirestore.instance
         .collection('chat')
         .where("store", isEqualTo: storeDocumentReference)
+        .limit(100)
         .get();
 
     var chatData = await res.docs;
@@ -163,11 +164,16 @@ class DashboardScreenController extends GetxController {
                   scrollcontroller
                       .jumpTo(scrollcontroller.position.maxScrollExtent);
                 });
-                docChanges.add({
-                  "id": change.doc.id,
-                  "message": change.doc['message'],
-                  "order_id": change.doc['orderid'],
-                });
+              }
+              docChanges.add({
+                "id": change.doc.id,
+                "message": change.doc['message'],
+                "order_id": change.doc['orderid'],
+              });
+              for (var i = 0; i < orderList.length; i++) {
+                if (orderList[i].id == change.doc['orderid']) {
+                  orderList[i].hasMessage.value = true;
+                }
               }
             }
           }
@@ -252,9 +258,13 @@ class DashboardScreenController extends GetxController {
 
   showChat({required String orderID}) {
     chatListforDisplay.clear();
+    print(orderID);
     for (var i = 0; i < chatList.length; i++) {
       if (orderID == chatList[i].orderid) {
         chatListforDisplay.add(chatList[i]);
+        print(chatList[i].orderid);
+        print(chatList[i].orderid);
+        print(chatList[i].message);
       }
     }
     if (scrollcontroller.hasClients) {
@@ -311,7 +321,8 @@ class DashboardScreenController extends GetxController {
           "body": chat,
           "title": Get.find<StorageServices>().storage.read('name'),
           "subtitle": "Tracking Order: $orderid",
-        }
+        },
+        "data": {"notif_from": "Chat", "value": "$orderid"},
       });
       var e2epushnotif =
           await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
@@ -529,7 +540,8 @@ class DashboardScreenController extends GetxController {
         "body": message,
         "title": "Food3ip",
         "subtitle": "Tracking Order: $orderid",
-      }
+      },
+      "data": {"notif_from": "Order Status", "value": ""}
     });
     var e2epushnotif =
         await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),

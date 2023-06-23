@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:get/get.dart';
+
 List<OrderModel> orderModelFromJson(String str) =>
     List<OrderModel>.from(json.decode(str).map((x) => OrderModel.fromJson(x)));
 
@@ -19,19 +21,20 @@ class OrderModel {
   double orderSubtotal;
   double orderTotal;
   String customer_id;
+  RxBool hasMessage;
   List<OrderList> orderList;
 
-  OrderModel({
-    required this.id,
-    required this.customerDetails,
-    required this.deliveryFee,
-    required this.orderStatus,
-    required this.orderStoreId,
-    required this.orderSubtotal,
-    required this.orderTotal,
-    required this.customer_id,
-    required this.orderList,
-  });
+  OrderModel(
+      {required this.id,
+      required this.customerDetails,
+      required this.deliveryFee,
+      required this.orderStatus,
+      required this.orderStoreId,
+      required this.orderSubtotal,
+      required this.orderTotal,
+      required this.customer_id,
+      required this.orderList,
+      required this.hasMessage});
 
   factory OrderModel.fromJson(Map<String, dynamic> json) => OrderModel(
         id: json["id"],
@@ -42,6 +45,7 @@ class OrderModel {
         orderSubtotal: json["order_subtotal"],
         orderTotal: json["order_total"],
         customer_id: json["customer_id"],
+        hasMessage: false.obs,
         orderList: List<OrderList>.from(
             json["order_list"].map((x) => OrderList.fromJson(x))),
       );
@@ -55,6 +59,7 @@ class OrderModel {
         "order_subtotal": orderSubtotal,
         "customer_id": customer_id,
         "order_total": orderTotal,
+        "hasMessage": hasMessage,
         "order_list": List<dynamic>.from(orderList.map((x) => x.toJson())),
       };
 }

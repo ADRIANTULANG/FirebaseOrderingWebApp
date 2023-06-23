@@ -111,6 +111,10 @@ class OrderScreen extends GetView<DashboardScreenController> {
                                       fontSize: 2.5.sp),
                                 ),
                               )),
+                              Expanded(
+                                  child: Container(
+                                alignment: Alignment.center,
+                              )),
                             ],
                           ),
                         ),
@@ -131,6 +135,8 @@ class OrderScreen extends GetView<DashboardScreenController> {
                                         children: [
                                           InkWell(
                                             onTap: () {
+                                              controller.orderList[index]
+                                                  .hasMessage.value = false;
                                               controller.selected_customer_id
                                                       .value =
                                                   controller.orderList[index]
@@ -236,6 +242,24 @@ class OrderScreen extends GetView<DashboardScreenController> {
                                                         fontSize: 2.5.sp),
                                                   ),
                                                 )),
+                                                Expanded(
+                                                    child: Container(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: Obx(
+                                                          () => Icon(
+                                                            Icons
+                                                                .message_rounded,
+                                                            color: controller
+                                                                        .orderList[
+                                                                            index]
+                                                                        .hasMessage
+                                                                        .value ==
+                                                                    true
+                                                                ? Colors.orange
+                                                                : Colors.black,
+                                                          ),
+                                                        ))),
                                               ],
                                             ),
                                           ),
@@ -567,7 +591,8 @@ class OrderScreen extends GetView<DashboardScreenController> {
                                                             EdgeInsets.all(16),
                                                         child: Text(
                                                           controller
-                                                              .chatList[index]
+                                                              .chatListforDisplay[
+                                                                  index]
                                                               .message,
                                                           style: TextStyle(
                                                               fontSize: 15),
