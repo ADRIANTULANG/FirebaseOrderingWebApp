@@ -62,7 +62,7 @@ class DashboardScreenController extends GetxController {
 
   Stream? streamChats;
   StreamSubscription<dynamic>? chat_listener;
-  RxBool isOrderList_or_ChatList = true.obs;
+  RxString isOrderList_or_ChatList_or_QrCode = "Order".obs;
   RxBool isShown = false.obs;
 
   UploadTask? uploadTask;

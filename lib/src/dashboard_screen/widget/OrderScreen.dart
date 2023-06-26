@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
 import '../controller/dashboard_screen_controller.dart';
@@ -296,8 +297,8 @@ class OrderScreen extends GetView<DashboardScreenController> {
                             children: [
                               InkWell(
                                 onTap: () {
-                                  controller.isOrderList_or_ChatList.value =
-                                      true;
+                                  controller.isOrderList_or_ChatList_or_QrCode
+                                      .value = "Order";
                                 },
                                 child: Icon(
                                   Icons.list,
@@ -309,8 +310,21 @@ class OrderScreen extends GetView<DashboardScreenController> {
                               ),
                               InkWell(
                                 onTap: () {
-                                  controller.isOrderList_or_ChatList.value =
-                                      false;
+                                  controller.isOrderList_or_ChatList_or_QrCode
+                                      .value = "Qrcode";
+                                },
+                                child: Icon(
+                                  Icons.qr_code,
+                                  size: 4.sp,
+                                ),
+                              ),
+                              SizedBox(
+                                width: .5.w,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  controller.isOrderList_or_ChatList_or_QrCode
+                                      .value = "Chat";
                                   Future.delayed(Duration(seconds: 3), () {
                                     controller.scrollcontroller.jumpTo(
                                         controller.scrollcontroller.position
@@ -406,7 +420,9 @@ class OrderScreen extends GetView<DashboardScreenController> {
                           height: 1.h,
                         ),
                         Obx(
-                          () => controller.isOrderList_or_ChatList.value == true
+                          () => controller.isOrderList_or_ChatList_or_QrCode
+                                      .value ==
+                                  "Order"
                               ? Expanded(
                                   child: Container(
                                     color: Colors.white,
@@ -534,157 +550,191 @@ class OrderScreen extends GetView<DashboardScreenController> {
                                     ),
                                   ),
                                 )
-                              : Expanded(
-                                  child: Container(
-                                  color: Colors.white,
-                                  padding: EdgeInsets.only(
-                                      left: 1.w,
-                                      right: 1.w,
-                                      top: 2.h,
-                                      bottom: 1.h),
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: Obx(
-                                          () => ListView.builder(
-                                            itemCount: controller
-                                                .chatListforDisplay.length,
-                                            controller:
-                                                controller.scrollcontroller,
-                                            shrinkWrap: true,
-                                            padding: EdgeInsets.only(
-                                                top: 10, bottom: 10),
-                                            itemBuilder: (context, index) {
-                                              return Column(
-                                                children: [
-                                                  Container(
-                                                    padding: EdgeInsets.only(
-                                                      left: 14,
-                                                      right: 14,
-                                                      top: 10,
-                                                    ),
-                                                    child: Align(
-                                                      alignment: (controller
-                                                                  .chatListforDisplay[
-                                                                      index]
-                                                                  .sender ==
-                                                              "customer"
-                                                          ? Alignment.topLeft
-                                                          : Alignment.topRight),
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(20),
-                                                          color: (controller
+                              : controller.isOrderList_or_ChatList_or_QrCode
+                                          .value ==
+                                      "Chat"
+                                  ? Expanded(
+                                      child: Container(
+                                      color: Colors.white,
+                                      padding: EdgeInsets.only(
+                                          left: 1.w,
+                                          right: 1.w,
+                                          top: 2.h,
+                                          bottom: 1.h),
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: Obx(
+                                              () => ListView.builder(
+                                                itemCount: controller
+                                                    .chatListforDisplay.length,
+                                                controller:
+                                                    controller.scrollcontroller,
+                                                shrinkWrap: true,
+                                                padding: EdgeInsets.only(
+                                                    top: 10, bottom: 10),
+                                                itemBuilder: (context, index) {
+                                                  return Column(
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                          left: 14,
+                                                          right: 14,
+                                                          top: 10,
+                                                        ),
+                                                        child: Align(
+                                                          alignment: (controller
                                                                       .chatListforDisplay[
                                                                           index]
                                                                       .sender ==
                                                                   "customer"
-                                                              ? Colors
-                                                                  .grey.shade200
-                                                              : Colors
-                                                                  .orange[200]),
-                                                        ),
-                                                        padding:
-                                                            EdgeInsets.all(16),
-                                                        child: Text(
-                                                          controller
-                                                              .chatListforDisplay[
-                                                                  index]
-                                                              .message,
-                                                          style: TextStyle(
-                                                              fontSize: 15),
+                                                              ? Alignment
+                                                                  .topLeft
+                                                              : Alignment
+                                                                  .topRight),
+                                                          child: Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          20),
+                                                              color: (controller
+                                                                          .chatListforDisplay[
+                                                                              index]
+                                                                          .sender ==
+                                                                      "customer"
+                                                                  ? Colors.grey
+                                                                      .shade200
+                                                                  : Colors.orange[
+                                                                      200]),
+                                                            ),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    16),
+                                                            child: Text(
+                                                              controller
+                                                                  .chatListforDisplay[
+                                                                      index]
+                                                                  .message,
+                                                              style: TextStyle(
+                                                                  fontSize: 15),
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                      left: 2.w,
-                                                      right: 2.w,
-                                                    ),
-                                                    child: Align(
-                                                        alignment: (controller
-                                                                    .chatListforDisplay[
-                                                                        index]
-                                                                    .sender ==
-                                                                "customer"
-                                                            ? Alignment.topLeft
-                                                            : Alignment
-                                                                .topRight),
-                                                        child: Text(
-                                                          DateFormat('yMMMd')
-                                                                  .format(controller
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                          left: 2.w,
+                                                          right: 2.w,
+                                                        ),
+                                                        child: Align(
+                                                            alignment: (controller
+                                                                        .chatListforDisplay[
+                                                                            index]
+                                                                        .sender ==
+                                                                    "customer"
+                                                                ? Alignment
+                                                                    .topLeft
+                                                                : Alignment
+                                                                    .topRight),
+                                                            child: Text(
+                                                              DateFormat('yMMMd').format(controller
                                                                       .chatListforDisplay[
                                                                           index]
                                                                       .date) +
-                                                              " " +
-                                                              DateFormat('jm')
-                                                                  .format(controller
-                                                                      .chatListforDisplay[
-                                                                          index]
-                                                                      .date),
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              color:
-                                                                  Colors.grey,
-                                                              fontSize: 1.5.sp),
-                                                        )),
-                                                  )
-                                                ],
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 5.h,
-                                        color: Colors.grey[200],
-                                        padding: EdgeInsets.only(
-                                            left: 1.w, right: 1.w),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              height: 4.h,
-                                              width: 20.w,
-                                              child: TextField(
-                                                controller: controller.message,
-                                                decoration: InputDecoration(
-                                                    fillColor: Colors.white,
-                                                    filled: true,
-                                                    contentPadding:
-                                                        EdgeInsets.only(
-                                                            left: .5.w),
-                                                    alignLabelWithHint: false,
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8)),
-                                                    hintText:
-                                                        'Type something..'),
+                                                                  " " +
+                                                                  DateFormat(
+                                                                          'jm')
+                                                                      .format(controller
+                                                                          .chatListforDisplay[
+                                                                              index]
+                                                                          .date),
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontSize:
+                                                                      1.5.sp),
+                                                            )),
+                                                      )
+                                                    ],
+                                                  );
+                                                },
                                               ),
                                             ),
-                                            InkWell(
-                                                onTap: () {
-                                                  controller.sendMessage(
-                                                      chat: controller
-                                                          .message.text);
-                                                },
-                                                child: Icon(Icons.send))
-                                          ],
+                                          ),
+                                          Container(
+                                            height: 5.h,
+                                            color: Colors.grey[200],
+                                            padding: EdgeInsets.only(
+                                                left: 1.w, right: 1.w),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                  height: 4.h,
+                                                  width: 20.w,
+                                                  child: TextField(
+                                                    controller:
+                                                        controller.message,
+                                                    decoration: InputDecoration(
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        contentPadding:
+                                                            EdgeInsets.only(
+                                                                left: .5.w),
+                                                        alignLabelWithHint:
+                                                            false,
+                                                        border:
+                                                            OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8)),
+                                                        hintText:
+                                                            'Type something..'),
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                    onTap: () {
+                                                      controller.sendMessage(
+                                                          chat: controller
+                                                              .message.text);
+                                                    },
+                                                    child: Icon(Icons.send))
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ))
+                                  : Expanded(
+                                      child: Container(
+                                      color: Colors.white,
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.only(
+                                        left: 5.w,
+                                        right: 5.w,
+                                        top: 5.w,
+                                        bottom: 5.w,
+                                      ),
+                                      child: Obx(
+                                        () => QrImage(
+                                          data: controller.order_id.value,
+                                          version: QrVersions.auto,
+                                          gapless: false,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                )),
+                                    )),
                         ),
                         Divider(),
                         Container(
