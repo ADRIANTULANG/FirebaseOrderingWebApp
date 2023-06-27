@@ -715,6 +715,7 @@ class DashboardScreenController extends GetxController {
           "username": driverusername.text,
           "password": driverpassword.text,
           "storeid": storeDocumentReference,
+          "online": false
         });
         getDrivers();
         Get.back();
