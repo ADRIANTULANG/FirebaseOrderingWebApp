@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:orderingappwebadmin/src/dashboard_screen/controller/dashboard_screen_controller.dart';
 import 'package:sizer/sizer.dart';
 
-class AddProductScreenAlertDialog {
+class DashboardAlertDialog {
   static showSuccessAdd() async {
     Get.dialog(AlertDialog(
         content: Container(
@@ -300,6 +300,263 @@ class AddProductScreenAlertDialog {
                   ),
                 ],
               )),
+            ],
+          ),
+        )));
+  }
+
+  static showAddDriver({required DashboardScreenController controller}) async {
+    controller.drivercontactno.clear();
+    controller.driverfirstname.clear();
+    controller.driverlastname.clear();
+    controller.driverusername.clear();
+    controller.driverpassword.clear();
+    Get.dialog(AlertDialog(
+        title: Text("Add Driver"),
+        content: Container(
+          height: 40.h,
+          width: 60.w,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.driverfirstname,
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'firstname'),
+                ),
+              ),
+              SizedBox(
+                height: .5.h,
+              ),
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.driverlastname,
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'lastname'),
+                ),
+              ),
+              SizedBox(
+                height: .5.h,
+              ),
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.drivercontactno,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9+]'))
+                  ],
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'contact no.'),
+                ),
+              ),
+              SizedBox(
+                height: .5.h,
+              ),
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.driverusername,
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'username'),
+                ),
+              ),
+              SizedBox(
+                height: .5.h,
+              ),
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.driverpassword,
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'password'),
+                ),
+              ),
+              SizedBox(
+                height: 2.h,
+              ),
+              InkWell(
+                onTap: () {
+                  controller.addDriver();
+                },
+                child: Container(
+                    height: 5.h,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.all(Radius.circular(3)),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Add",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
+              ),
+            ],
+          ),
+        )));
+  }
+
+  static showUpdateDriver(
+      {required DashboardScreenController controller,
+      required String contact,
+      required String firstname,
+      required String lastname,
+      required String username,
+      required String driverID,
+      required String password}) async {
+    controller.drivercontactno.text = contact;
+    controller.driverfirstname.text = firstname;
+    controller.driverlastname.text = lastname;
+    controller.driverusername.text = username;
+    controller.driverpassword.text = password;
+    Get.dialog(AlertDialog(
+        title: Text("Update Driver"),
+        content: Container(
+          height: 40.h,
+          width: 60.w,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.driverfirstname,
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'firstname'),
+                ),
+              ),
+              SizedBox(
+                height: .5.h,
+              ),
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.driverlastname,
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'lastname'),
+                ),
+              ),
+              SizedBox(
+                height: .5.h,
+              ),
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.drivercontactno,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9+]'))
+                  ],
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'contact no.'),
+                ),
+              ),
+              SizedBox(
+                height: .5.h,
+              ),
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.driverusername,
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'username'),
+                ),
+              ),
+              SizedBox(
+                height: .5.h,
+              ),
+              Container(
+                height: 5.h,
+                child: TextField(
+                  controller: controller.driverpassword,
+                  decoration: InputDecoration(
+                      fillColor: Colors.amber[100],
+                      filled: true,
+                      contentPadding: EdgeInsets.only(left: .5.w),
+                      alignLabelWithHint: false,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'password'),
+                ),
+              ),
+              SizedBox(
+                height: 2.h,
+              ),
+              InkWell(
+                onTap: () {
+                  controller.updateDriver(driverID: driverID);
+                },
+                child: Container(
+                    height: 5.h,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.all(Radius.circular(3)),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Update",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
+              ),
             ],
           ),
         )));

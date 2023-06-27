@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 
 import '../controller/dashboard_screen_controller.dart';
-import 'AddProductscreen_alertdialog.dart';
+import 'dashboard_alertdialog.dart';
 
 class ProductScreen extends GetView<DashboardScreenController> {
   static const String id = "products";
@@ -95,7 +95,7 @@ class ProductScreen extends GetView<DashboardScreenController> {
                                               children: [
                                                 InkWell(
                                                   onTap: () {
-                                                    AddProductScreenAlertDialog
+                                                    DashboardAlertDialog
                                                         .updateProducts(
                                                             controller:
                                                                 controller,
@@ -177,8 +177,7 @@ class ProductScreen extends GetView<DashboardScreenController> {
             ),
             InkWell(
               onTap: () {
-                AddProductScreenAlertDialog.showAddProducts(
-                    controller: controller);
+                DashboardAlertDialog.showAddProducts(controller: controller);
               },
               child: Container(
                 height: 5.h,

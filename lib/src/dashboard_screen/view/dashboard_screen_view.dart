@@ -7,6 +7,7 @@ import '../controller/dashboard_screen_controller.dart';
 import 'package:flutter_admin_scaffold/admin_scaffold.dart';
 import 'package:sizer/sizer.dart';
 
+import '../widget/DriverScreen.dart';
 import '../widget/OrderScreen.dart';
 import '../widget/ProductScreen.dart';
 
@@ -40,6 +41,9 @@ class _DashboardScreenViewState extends State<DashboardScreenView> {
       selectedScreen.value = HistoryScreen.id;
       await controller.getOrders();
       controller.getCounts();
+    } else if (item.route == DriverScreen.id) {
+      selectedScreen.value = DriverScreen.id;
+      controller.getDrivers();
     }
     Get.find<StorageServices>().saveRoute(screen: selectedScreen.value);
   }
@@ -76,6 +80,11 @@ class _DashboardScreenViewState extends State<DashboardScreenView> {
               title: 'History',
               route: HistoryScreen.id,
               icon: Icons.list,
+            ),
+            AdminMenuItem(
+              title: 'Driver',
+              route: DriverScreen.id,
+              icon: Icons.motorcycle,
             ),
           ],
           selectedRoute: DashboardScreenView.id,
@@ -121,6 +130,8 @@ class _DashboardScreenViewState extends State<DashboardScreenView> {
             ? OrderScreen()
             : selectedScreen.value == ProductScreen.id
                 ? ProductScreen()
-                : HistoryScreen()));
+                : selectedScreen.value == HistoryScreen.id
+                    ? HistoryScreen()
+                    : DriverScreen()));
   }
 }

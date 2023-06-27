@@ -10,9 +10,10 @@ import 'package:orderingappwebadmin/services/getstorage_services.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
 import '../model/dashboard_screen_chat_model.dart';
+import '../model/dashboard_screen_driver_model.dart';
 import '../model/dashboard_screen_order_model.dart';
 import '../model/dashboard_screen_products_model.dart';
-import '../widget/AddProductscreen_alertdialog.dart';
+import '../widget/dashboard_alertdialog.dart';
 
 class DashboardScreenController extends GetxController {
   RxList<OrderModel> orderList = <OrderModel>[].obs;
@@ -23,6 +24,8 @@ class DashboardScreenController extends GetxController {
   RxList<ChatModel> chatList = <ChatModel>[].obs;
   RxList<ChatModel> chatListforDisplay = <ChatModel>[].obs;
   RxList<OrderList> items = <OrderList>[].obs;
+  RxList<DriverModel> driverList = <DriverModel>[].obs;
+  RxList<DriverModel> driverList_masterList = <DriverModel>[].obs;
 
   RxList<ProductsModel> products_list = <ProductsModel>[].obs;
   RxList<ProductsModel> products_list_masterList = <ProductsModel>[].obs;
@@ -47,6 +50,12 @@ class DashboardScreenController extends GetxController {
   TextEditingController price = TextEditingController();
 
   TextEditingController searchproducts = TextEditingController();
+
+  TextEditingController driverfirstname = TextEditingController();
+  TextEditingController driverlastname = TextEditingController();
+  TextEditingController drivercontactno = TextEditingController();
+  TextEditingController driverusername = TextEditingController();
+  TextEditingController driverpassword = TextEditingController();
 
   RxDouble pending_count = 0.0.obs;
   RxDouble accepted_count = 0.0.obs;
@@ -78,6 +87,7 @@ class DashboardScreenController extends GetxController {
     getProducts();
     getCounts();
     streamChat();
+    getDrivers();
     super.onInit();
   }
 
@@ -607,7 +617,7 @@ class DashboardScreenController extends GetxController {
           "product_store_id": storeDocumentReference
         });
         Get.back();
-        AddProductScreenAlertDialog.showSuccessAdd();
+        DashboardAlertDialog.showSuccessAdd();
         getProducts();
       } on Exception catch (e) {
         print(e.toString());
@@ -644,7 +654,7 @@ class DashboardScreenController extends GetxController {
         });
         Get.back();
         getProducts();
-        AddProductScreenAlertDialog.showSuccessUpdate();
+        DashboardAlertDialog.showSuccessUpdate();
       } on Exception catch (e) {
         print(e.toString());
       }
@@ -654,10 +664,109 @@ class DashboardScreenController extends GetxController {
   deleteProducts({required String id}) async {
     try {
       await FirebaseFirestore.instance.collection('products').doc(id).delete();
-      AddProductScreenAlertDialog.showSuccessDelete();
+      DashboardAlertDialog.showSuccessDelete();
       getProducts();
     } on Exception catch (e) {
       print(e.toString());
+    }
+  }
+
+  getDrivers() async {
+    var storeDocumentReference = await FirebaseFirestore.instance
+        .collection('store')
+        .doc(Get.find<StorageServices>().storage.read("id"));
+    var driverResult = await FirebaseFirestore.instance
+        .collection('driver')
+        .where("storeid", isEqualTo: storeDocumentReference)
+        .get();
+    List data = [];
+    for (var i = 0; i < driverResult.docs.length; i++) {
+      Map map = {
+        "driverid": driverResult.docs[i].id,
+        "firstname": driverResult.docs[i]['firstname'],
+        "lastname": driverResult.docs[i]['lastname'],
+        "contactno": driverResult.docs[i]['contactno'],
+        "username": driverResult.docs[i]['username'],
+        "password": driverResult.docs[i]['password'],
+      };
+      data.add(map);
+    }
+
+    var jsonEncodedData = await jsonEncode(data);
+    driverList.assignAll(await driverModelFromJson(jsonEncodedData));
+    driverList_masterList.assignAll(await driverModelFromJson(jsonEncodedData));
+  }
+
+  addDriver() async {
+    try {
+      if (driverfirstname.text.isNotEmpty &&
+          driverlastname.text.isNotEmpty &&
+          drivercontactno.text.isNotEmpty &&
+          driverusername.text.isNotEmpty &&
+          driverpassword.text.isNotEmpty) {
+        var storeDocumentReference = await FirebaseFirestore.instance
+            .collection('store')
+            .doc(Get.find<StorageServices>().storage.read("id"));
+        await FirebaseFirestore.instance.collection('driver').add({
+          "contactno": drivercontactno.text,
+          "fcmToken": "",
+          "firstname": driverfirstname.text,
+          "lastname": driverlastname.text,
+          "username": driverusername.text,
+          "password": driverpassword.text,
+          "storeid": storeDocumentReference,
+        });
+        getDrivers();
+        Get.back();
+      } else {}
+    } catch (e) {}
+  }
+
+  updateDriver({required String driverID}) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('driver')
+          .doc(driverID)
+          .update({
+        "contactno": drivercontactno.text,
+        "firstname": driverfirstname.text,
+        "lastname": driverlastname.text,
+        "username": driverusername.text,
+        "password": driverpassword.text,
+      });
+      getDrivers();
+      Get.back();
+    } catch (e) {}
+  }
+
+  deleteDriver({required String driverID}) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('driver')
+          .doc(driverID)
+          .delete();
+      getDrivers();
+      Get.back();
+    } catch (e) {}
+  }
+
+  searchDriver({required String word}) async {
+    RxList<DriverModel> temp_list = <DriverModel>[].obs;
+    if (word == "") {
+      driverList.assignAll(driverList_masterList);
+    } else {
+      for (var i = 0; i < driverList_masterList.length; i++) {
+        var name = driverList_masterList[i].firstname +
+            " " +
+            driverList_masterList[i].lastname;
+        if (name
+            .toLowerCase()
+            .toString()
+            .contains(word.toLowerCase().toString())) {
+          temp_list.add(driverList_masterList[i]);
+        }
+      }
+      driverList.assignAll(temp_list);
     }
   }
 }
