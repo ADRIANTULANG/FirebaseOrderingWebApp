@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -325,10 +326,23 @@ class OrderScreen extends GetView<DashboardScreenController> {
                                 onTap: () {
                                   controller.isOrderList_or_ChatList_or_QrCode
                                       .value = "Chat";
+                                  //                               if (!_scrollController.hasClients) {
+                                  //   _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+                                  //     duration: const Duration(milliseconds: 500),
+                                  //     curve: Curves.easeInOut);
+                                  // }
                                   Future.delayed(Duration(seconds: 3), () {
-                                    controller.scrollcontroller.jumpTo(
-                                        controller.scrollcontroller.position
-                                            .maxScrollExtent);
+                                    try {
+                                      if (controller
+                                          .scrollcontroller.hasClients) {
+                                        controller.scrollcontroller.jumpTo(
+                                          controller.scrollcontroller.position
+                                              .maxScrollExtent,
+                                        );
+                                      }
+                                    } on Exception catch (e) {
+                                      log(e.toString());
+                                    }
                                   });
                                 },
                                 child: Icon(

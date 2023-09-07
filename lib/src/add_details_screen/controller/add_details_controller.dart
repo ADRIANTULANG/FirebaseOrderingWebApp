@@ -102,6 +102,7 @@ class AddDetailsController extends GetxController {
           "password": password,
           "popular": false,
           "username": username,
+          "rate": 0
         });
         await setGeoPoint(documentID: res.id);
         Get.back();
