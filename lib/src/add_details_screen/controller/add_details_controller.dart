@@ -102,8 +102,9 @@ class AddDetailsController extends GetxController {
           "password": password,
           "popular": false,
           "username": username,
-          "rate": 0
         });
+        final CollectionReference rateCollection = res.collection('rates');
+        rateCollection.add({"rates": 0, "userid": ""});
         await setGeoPoint(documentID: res.id);
         Get.back();
         AddDetailsDialog.showSuccessRegister();
